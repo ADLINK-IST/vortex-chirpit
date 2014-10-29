@@ -14,7 +14,8 @@ scalaVersion 	:= "2.11.3"
 
 resolvers += "nuvo.io maven repo" at "http://nuvo-io.github.com/mvn-repo/snapshots"
 
-resolvers += "Vortex Snapshot Repo" at "https://dl.dropboxusercontent.com/u/19238968/devel/mvn-repo/vortex"
+// Make sure that the resolver below points to your vortex installation
+resolvers += "Vortex  Repo" at "${user.home}/.m2/repository"
 
 libraryDependencies += "io.nuvo" % "moliere_2.10" % "0.5.0-SNAPSHOT"
 
