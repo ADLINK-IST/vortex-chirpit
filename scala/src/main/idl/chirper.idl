@@ -1,0 +1,74 @@
+/**
+ * As the number of potential users is very large, we need to properly
+ * scope subscriptions. One approach is to use partitions to do so.
+ * 
+ * Every user will be publishing data under the following partition:
+ *
+ *      chirp.userid
+ *
+ * Thus, to follow a chirper we need to subscribe to the topic
+ * specified below as well as joining his partition. 
+ **/
+
+struct User {
+  string name;
+  string surname;
+  string region;
+  string userId;
+};
+#pragma keylist User userId
+
+struct TrillId {
+  string userId;
+  string trillId;
+};
+
+struct None {
+  bool value;
+};
+
+// TODO:  follow the GeoJSON format
+struct SomeLocation {
+  float longitude;
+  float latitude;
+};
+
+enum LocationKind {
+  SOME_LOCATION, NONE
+};
+
+union Location {
+  switch (LocationKind) {
+  case SOME_LOCATION:
+    SomeLocation location;
+  case NONE:
+    None none;
+  }
+};
+
+struct Trill {
+  TrillId id;
+  Location location;
+  string<128> trill;
+};
+#pragma keylist Trill id.userId id.trillid
+
+enum TrillEmotionKind {
+  RETRILL,
+  LIKE,
+  DISLIKE
+};
+struct TrillEmotion {
+  TrillId id;
+  string userId;
+  TrillEmotionKind kind;
+};
+#pragma keylist Trill id.userId id.trillid
+
+struct TrillStats {
+  TrillId id;
+  unsigned int retrills;
+  unsigned int likes;
+};
+#pragma keylist TrillEmotion userId
+

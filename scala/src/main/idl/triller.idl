@@ -1,0 +1,112 @@
+/**
+ * As the number of potential users is very large, we need to properly
+ * scope subscriptions. One approach is to use partitions to do so.
+ * 
+ * Every user will be publishing data under the following partition:
+ *
+ *      chirp.userid
+ *
+ * Thus, to follow a chirper we need to subscribe to the topic
+ * specified below as well as joining his partition. 
+ **/
+
+module com {
+  module chirper {    
+
+    struct NoneValue {
+      boolean value;
+    };
+
+    // TODO:  follow the GeoJSON format
+    struct SomeLocation {
+      float longitude;
+      float latitude;
+    };
+    
+    enum LocationKind {
+      SOME_LOCATION, NONE
+    };
+    
+    union Location switch (LocationKind) {
+    case SOME_LOCATION:
+      SomeLocation location;
+    case NONE:
+      NoneValue none;
+    };
+
+
+    struct ChirpId {
+      string uid;
+      string cid;
+    };
+
+    enum ChirpActionKind {
+      CHIRP,
+      RECHIRP,
+      LIKE,
+      DISLIKE
+    };
+    
+    struct ChirpHeader {
+      ChirpId id;
+      Location location;
+      unsigned long long timestamp;
+      ChirpActionKind kind;
+    };
+    
+    union ChirpBody switch (ChirpActionKind) {
+    case CHIRP:
+      string<128> chirp;
+    case RECHIRP:
+      string<128> chirp;
+      string user;
+    case LIKE:
+    case DISLIKE:
+      string user;
+    };
+
+    
+    struct ChirpAction {
+      ChirpHeader header;
+      ChirpBody   body;
+    };
+#pragma keylist ChirpAction header.id.cid
+ 
+   
+    struct User {
+      string name;
+      string surname;
+      string region;
+      string userId;
+    };
+#pragma keylist User userId
+
+    struct enum UserActionKind {
+      FOLLOW, UNFOLLOW
+	};
+    
+    struct UserAction {
+      UserActionKind kind;
+      string fromUser;
+      string toUser;
+    };
+
+    struct UserStats {
+      string userId;
+      unsigned long followers;
+      unsigned long chirps;
+      unsigned long followed;
+    };
+#pragma keylist UserStats userId
+
+    typedef sequence<string> Partitions;
+
+    struct AppConfig {
+      string userId;
+      Partitions ps;
+      unsigned short history;
+    };
+#pragma keylist UserConfig userId
+
+  };
+  };

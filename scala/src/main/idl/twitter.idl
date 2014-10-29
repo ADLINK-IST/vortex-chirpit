@@ -1,0 +1,50 @@
+/**
+ * As the number of potential users is very large, we need to properly
+ * scope subscriptions. One approach is to use partitions to do so.
+ * 
+ * Every user will be publishing data under the following partition:
+ *
+ * 
+ *
+ **/
+typedef sequence<string> HastagList;
+
+enum ChirpEmotionKind {
+  RECHIRP,
+  LIKE,
+  DISLIKE
+};
+
+struct User {
+  string name;
+  string surname;
+  string region;
+  string userId;
+};
+#pragma keylist User userId
+
+struct ChirpId {
+  string userId;
+  string chirpId;
+};
+
+struct Chirp {
+  ChirpId id;
+  string<128> chirp;
+};
+#pragma keylist Chirp id.userId id.chirpid
+
+struct ChirpEmotion {
+  ChirpId id;
+  string userId;
+  ChirpEmotionKind kind;
+};
+#pragma keylist Chirp id.userId id.chirpid
+
+struct ChirpStats {
+  ChirpId id;
+  unsigned int rechirps;
+  unsigned int likes;
+};
+#pragma keylist ChirpEmotion userId
+
